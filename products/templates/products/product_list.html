@@ -1,0 +1,36 @@
+<!Doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <link rel="stylesheet" href="{% static 'products/css/styles.css' %}">
+    <script src="{% static 'products/js/scripts.js' %}" defer></script>
+</head>
+<body>
+    <header>
+        <h1>{{ product.name }}</h1>
+    </header>
+    <main>
+        <section class="product-info">
+            <h2>Product Information</h2>
+            <p><strong>SKU:</strong> {{ product.sku }}</p>
+            <p><strong>Name:</strong> {{ product.name }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Price:</strong> ${{ product.price }}</p>
+            <p><strong>Stock Quantity:</strong> {{ product.stock_quantity }}</p>
+        </section>
+        <% if user.is_admin %>
+        <section class="product-actions">
+            <a href="{% url 'product_edit' product.pk %}" class="btn btn-primary">Edit Product</a>
+            <form action="{% url 'product_delete' product.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Product</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 ERP System</p>
+    </footer>
+</body>
+</html>
