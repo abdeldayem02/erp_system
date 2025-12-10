@@ -24,6 +24,4 @@ class Product(models.Model):
         permissions = [
             ("view_product_details", "Can view product details"),
             ("edit_product", "Can edit product information"),
-            ("delete_product", "Can delete product"),
-            ("add_product", "Can add new product"),
         ]

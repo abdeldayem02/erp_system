@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Product
 from accounts.decorators import admin_required
 
 
+@login_required
 def product_list(request):
     """
     Display a list of all products.
@@ -11,6 +13,7 @@ def product_list(request):
     return render(request, "products/product_list.html", {"products": products})
 
 
+@login_required
 def product_detail(request, pk):
     """
     Display details of a specific product.
