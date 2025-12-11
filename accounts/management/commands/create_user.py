@@ -36,6 +36,15 @@ class Command(BaseCommand):
             role=role
         )
 
-        self.stdout.write(self.style.SUCCESS(
-            f'Successfully created {role} user: {username}'
-        ))
+        # Grant admin page access to ADMIN role users
+        if role == 'ADMIN':
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+            self.stdout.write(self.style.SUCCESS(
+                f'Successfully created {role} user: {username} (with admin page access)'
+            ))
+        else:
+            self.stdout.write(self.style.SUCCESS(
+                f'Successfully created {role} user: {username}'
+            ))
