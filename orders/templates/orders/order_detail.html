@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Order {{ order.order_number }} - ERP System{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1><i class="bi bi-cart"></i> Order {{ order.order_number }}</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'order_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5>Order Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+                <p><strong>Customer:</strong> {{ order.customer.name }}</p>
+                <p><strong>Date:</strong> {{ order.order_date|date:"Y-m-d" }}</p>
+                <p><strong>Created By:</strong> {{ order.created_by.username }}</p>
+                <p><strong>Status:</strong>
+                    {% if order.status == 'pending' %}
+                    <span class="badge bg-warning">Pending</span>
+                    {% elif order.status == 'confirmed' %}
+                    <span class="badge bg-success">Confirmed</span>
+                    {% else %}
+                    <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </p>
+                <p><strong>Total Amount:</strong> <span class="h4">${{ order.total_amount }}</span></p>
+            </div>
+        </div>
+        
+        {% if user.is_admin and order.status != 'cancelled' %}
+        <div class="card">
+            <div class="card-header">
+                <h5>Admin Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if order.items.count == 0 %}
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-exclamation-triangle"></i> This order has no items. Add items before confirming.
+                </div>
+                {% endif %}
+                {% if order.status == 'pending' %}
+                <form method="post" action="{% url 'order_confirm' order.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success" {% if order.items.count == 0 %}disabled{% endif %}>
+                        <i class="bi bi-check-circle"></i> Confirm Order
+                    </button>
+                </form>
+                {% endif %}
+                <form method="post" action="{% url 'order_cancel' order.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?{% if order.status == 'confirmed' %} Stock will be restored.{% endif %}');">
+                        <i class="bi bi-x-circle"></i> Cancel Order
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Order Items</h5>
+                {% if order.status == 'pending' %}
+                <a href="{% url 'order_item_add' order.pk %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus"></i> Add Item
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            {% if order.status == 'pending' %}<th></th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.unit_price }}</td>
+                            <td>${{ item.total_price }}</td>
+                            {% if order.status == 'pending' %}
+                            <td>
+                                <a href="{% url 'order_item_remove' order.pk item.pk %}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Remove this item?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{% if order.status == 'pending' %}5{% else %}4{% endif %}" class="text-center text-muted">
+                                No items yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

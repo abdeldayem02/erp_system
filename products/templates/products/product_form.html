@@ -1,51 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if product %}Edit Product{% else %}Create Product{% endif %}</title>
-</head>
-<body>
-    <header>
-        <h1>{% if product %}Edit Product{% else %}Create New Product{% endif %}</h1>
-    </header>
-    <main>
-        <section class="product-form">
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="sku">SKU:</label>
-                    <input type="text" id="sku" name="sku" value="{{ product.sku|default:'' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="{{ product.name|default:'' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="category">Category:</label>
-                    <input type="text" id="category" name="category" value="{{ product.category|default:'' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="cost_price">Cost Price:</label>
-                    <input type="number" step="0.01" id="cost_price" name="cost_price" value="{{ product.cost_price|default:'' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="selling_price">Selling Price:</label>
-                    <input type="number" step="0.01" id="selling_price" name="selling_price" value="{{ product.selling_price|default:'' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="stock_quantity">Stock Quantity:</label>
-                    <input type="number" id="stock_quantity" name="stock_quantity" value="{{ product.stock_quantity|default:'' }}" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">{% if product %}Update{% else %}Create{% endif %}</button>
-                    <a href="{% if product %}{% url 'product_detail' product.pk %}{% else %}{% url 'product_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 ERP System</p>
-    </footer>
-</body>
+{% extends 'base.html' %}
+
+{% block title %}{% if product %}Edit{% else %}Create{% endif %} Product - ERP System{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1><i class="bi bi-box"></i> {% if product %}Edit{% else %}Create{% endif %} Product</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{% if product %}{% url 'product_detail' product.pk %}{% else %}{% url 'product_list' %}{% endif %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="sku" class="form-label">SKU</label>
+                        <input type="text" class="form-control" id="sku" name="sku" value="{{ product.sku|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ product.name|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="category" name="category" value="{{ product.category|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cost_price" class="form-label">Cost Price</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="cost_price" name="cost_price" value="{{ product.cost_price|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="selling_price" class="form-label">Selling Price</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="selling_price" name="selling_price" value="{{ product.selling_price|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stock_quantity" class="form-label">Stock Quantity</label>
+                        <input type="number" min="0" class="form-control" id="stock_quantity" name="stock_quantity" value="{{ product.stock_quantity|default:'' }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {% if product %}Update{% else %}Create{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 </html>

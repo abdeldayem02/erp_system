@@ -1,36 +1,71 @@
-<!Doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Detail</title>
-    <link rel="stylesheet" href="{% static 'products/css/styles.css' %}">
-    <script src="{% static 'products/js/scripts.js' %}" defer></script>
-</head>
-<body>
-    <header>
-        <h1>{{ product.name }}</h1>
-    </header>
-    <main>
-        <section class="product-info">
-            <h2>Product Information</h2>
-            <p><strong>SKU:</strong> {{ product.sku }}</p>
-            <p><strong>Name:</strong> {{ product.name }}</p>
-            <p><strong>Description:</strong> {{ product.description }}</p>
-            <p><strong>Price:</strong> ${{ product.price }}</p>
-            <p><strong>Stock Quantity:</strong> {{ product.stock_quantity }}</p>
-        </section>
-        <% if user.is_admin %>
-        <section class="product-actions">
-            <a href="{% url 'product_edit' product.pk %}" class="btn btn-primary">Edit Product</a>
-            <form action="{% url 'product_delete' product.pk %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete Product</button>
-            </form>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 ERP System</p>
-    </footer>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Products - ERP System{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1><i class="bi bi-box"></i> Products</h1>
+    </div>
+    <div class="col text-end">
+        {% if user.is_admin %}
+        <a href="{% url 'product_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Product
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Cost Price</th>
+                    <th>Selling Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.sku }}</td>
+                    <td><a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a></td>
+                    <td>{{ product.category }}</td>
+                    <td>${{ product.cost_price }}</td>
+                    <td>${{ product.selling_price }}</td>
+                    <td>
+                        {% if product.stock_quantity < 10 %}
+                        <span class="badge bg-warning">{{ product.stock_quantity }}</span>
+                        {% else %}
+                        {{ product.stock_quantity }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if user.is_admin %}
+                        <a href="{% url 'product_edit' product.pk %}" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No products found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' with page_obj=products %}
+
+{% endblock %}

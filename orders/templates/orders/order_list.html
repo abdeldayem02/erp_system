@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders - ERP System{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1><i class="bi bi-cart"></i> Sales Orders</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'order_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Order
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{% url 'order_detail' order.pk %}">{{ order.order_number }}</a></td>
+                    <td>{{ order.customer.name }}</td>
+                    <td>{{ order.order_date|date:"Y-m-d" }}</td>
+                    <td>${{ order.total_amount }}</td>
+                    <td>
+                        {% if order.status == 'pending' %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% elif order.status == 'confirmed' %}
+                        <span class="badge bg-success">Confirmed</span>
+                        {% else %}
+                        <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No orders found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' with page_obj=orders %}
+
+{% endblock %}

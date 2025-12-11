@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Item to Order {{ order.order_number }} - ERP System{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1><i class="bi bi-plus-circle"></i> Add Item to Order {{ order.order_number }}</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'order_detail' order.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Order
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="product_id" class="form-label">Product</label>
+                        <select class="form-select" id="product_id" name="product_id" required onchange="updatePrice()">
+                            <option value="">Select Product</option>
+                            {% for product in products %}
+                            <option value="{{ product.pk }}" 
+                                    data-price="{{ product.selling_price }}" 
+                                    data-stock="{{ product.stock_quantity }}">
+                                {{ product.name }} - ${{ product.selling_price }} (Stock: {{ product.stock_quantity }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                        <div class="form-text" id="stockWarning"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Unit Price</label>
+                        <input type="text" class="form-control" id="unit_price_display" readonly>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Add Item
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePrice() {
+    const select = document.getElementById('product_id');
+    const option = select.options[select.selectedIndex];
+    const price = option.dataset.price;
+    const stock = option.dataset.stock;
+    
+    document.getElementById('unit_price_display').value = price ? '$' + price : '';
+    
+    const quantityInput = document.getElementById('quantity');
+    quantityInput.max = stock;
+    
+    document.getElementById('stockWarning').textContent = stock > 0 
+        ? `Available stock: ${stock}` 
+        : 'Out of stock!';
+}
+</script>
+{% endblock %}
