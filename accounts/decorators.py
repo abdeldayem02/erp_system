@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from functools import wraps
-
+from django.http import HttpResponseForbidden
 
 def admin_required(view_func):
     """
@@ -12,7 +12,6 @@ def admin_required(view_func):
         if not request.user.is_authenticated:
             return redirect('admin:login')
         if not request.user.is_admin():
-            from django.http import HttpResponseForbidden
             return HttpResponseForbidden("You don't have permission to access this page.")
         return view_func(request, *args, **kwargs)
     return wrapper
@@ -27,7 +26,6 @@ def sales_required(view_func):
         if not request.user.is_authenticated:
             return redirect('admin:login')
         if not request.user.is_sales():
-            from django.http import HttpResponseForbidden
             return HttpResponseForbidden("You don't have permission to access this page.")
         return view_func(request, *args, **kwargs)
     return wrapper

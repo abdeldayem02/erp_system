@@ -49,7 +49,7 @@ class Command(BaseCommand):
             if created:
                 created_products += 1
         
-        self.stdout.write(self.style.SUCCESS(f'✓ Created {created_products} new products ({len(products_data)} total)'))
+        self.stdout.write(self.style.SUCCESS(f'Created {created_products} new products ({len(products_data)} total)'))
 
         # Create Jewelry Store Customers
         customers_data = [
@@ -73,8 +73,8 @@ class Command(BaseCommand):
             if created:
                 created_customers += 1
         
-        self.stdout.write(self.style.SUCCESS(f'✓ Created {created_customers} new customers ({len(customers_data)} total)'))
+        self.stdout.write(self.style.SUCCESS(f'Created {created_customers} new customers ({len(customers_data)} total)'))
 
-        self.stdout.write(self.style.SUCCESS('\n✅ Jewelry store data loaded successfully!'))
+        self.stdout.write(self.style.SUCCESS('\n Jewelry store data loaded successfully!'))
         self.stdout.write('   - Gold, Diamond, Silver, Pearl, and Wedding jewelry')
         self.stdout.write('   - Some items with low stock for testing alerts')

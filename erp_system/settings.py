@@ -137,8 +137,3 @@ AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
-
-# Authentication settings
-LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "login"

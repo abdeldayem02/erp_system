@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 
 
 
@@ -9,7 +10,13 @@ class SalesOrder(models.Model):
     customer = models.ForeignKey('customers.Customer', on_delete=models.CASCADE)
     order_date = models.DateField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Total amount with validation to ensure non-negative values
+    total_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.00)]
+    )
     status = models.CharField(max_length=50, choices=[
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
@@ -46,9 +53,19 @@ class SalesOrder(models.Model):
 class SalesOrderItem(models.Model):
     sales_order = models.ForeignKey(SalesOrder, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+
+    # Unit price and total price with validation to ensure non-negative values
+    unit_price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.00)]
+    )
+    total_price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        validators=[MinValueValidator(0.00)]
+    )
 
 
     def __str__(self):

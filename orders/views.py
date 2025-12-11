@@ -37,7 +37,7 @@ def order_create(request):
         # Create order with created_by set to current user
         order = SalesOrder.objects.create(
             customer_id=customer_id,
-            total_amount=0,  # Will be calculated when items are added
+            total_amount=0, 
             status='pending',
             created_by=request.user
         )

@@ -49,7 +49,7 @@ def customer_create(request):
 @admin_required
 def customer_edit(request, pk):
     """
-    Edit an existing customer.
+    Edit an existing customer, accessible only for admin-user.
     """
     customer = get_object_or_404(Customer, pk=pk)
 
@@ -68,7 +68,7 @@ def customer_edit(request, pk):
 @admin_required
 def customer_delete(request, pk):
     """
-    Delete a customer.
+    Delete a customer, , accessible only for admin-user.
     """
     customer = get_object_or_404(Customer, pk=pk)
     customer.delete()
