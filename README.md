@@ -259,9 +259,21 @@ erp_system/
    ```
 
 4. **Environment Configuration**
-   Create a `.env` file in the project root:
+   
+   Generate a secure secret key:
+   ```bash
+   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+   ```
+   
+   Create a `.env` file in the project root and paste the generated key:
    ```env
-   DJANGO_SECRET_KEY=your-secret-key-here
+   DJANGO_SECRET_KEY=your-generated-secret-key-here
+   DEBUG=True
+   ```
+   
+   **Example**: If the command outputs `django-insecure-abc123xyz789...`, your `.env` should look like:
+   ```env
+   DJANGO_SECRET_KEY=django-insecure-abc123xyz789...
    DEBUG=True
    ```
 
