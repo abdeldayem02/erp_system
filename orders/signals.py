@@ -19,15 +19,18 @@ def handle_order_status_change(sender, instance, **kwargs):
             
             # Status changed from pending to confirmed - reduce stock
             if old_status == 'pending' and new_status == 'confirmed':
+                # First, validate ALL items have sufficient stock
                 for item in instance.items.all():
                     product = item.product
-                    
-                    # Check if enough stock available
                     if product.stock_quantity < item.quantity:
                         raise ValueError(
                             f"Insufficient stock for {product.name}. "
                             f"Available: {product.stock_quantity}, Required: {item.quantity}"
                         )
+                
+                # Only if all items passed validation, reduce stock
+                for item in instance.items.all():
+                    product = item.product
                     
                     # Reduce stock
                     product.stock_quantity -= item.quantity

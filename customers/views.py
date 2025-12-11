@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from accounts.decorators import admin_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Customer
@@ -27,22 +28,44 @@ def customer_create(request):
     Create a new customer.
     """
     if request.method == "POST":
-        customer_id = request.POST.get("customer_id")
-        name = request.POST.get("name")
-        phone = request.POST.get("phone")
-        address = request.POST.get("address")
-        email = request.POST.get("email")
-        opening_balance = request.POST.get("opening_balance", 0.00)
+        try:
+            customer_id = request.POST.get("customer_id", "").strip()
+            name = request.POST.get("name", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            address = request.POST.get("address", "").strip()
+            email = request.POST.get("email", "").strip()
+            
+            # Validate required fields
+            if not all([customer_id, name, phone, address, email]):
+                messages.error(request, "All fields are required")
+                return redirect("customer_create")
+            
+            # Basic email validation
+            if "@" not in email or "." not in email:
+                messages.error(request, "Invalid email format")
+                return redirect("customer_create")
+            
+            # Validate opening balance
+            try:
+                opening_balance = float(request.POST.get("opening_balance", 0.00))
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid opening balance format")
+                return redirect("customer_create")
 
-        customer = Customer.objects.create(
-            customer_id=customer_id,
-            name=name,
-            phone=phone,
-            address=address,
-            email=email,
-            opening_balance=opening_balance,
-        )
-        return redirect("customer_detail", pk=customer.pk)
+            customer = Customer.objects.create(
+                customer_id=customer_id,
+                name=name,
+                phone=phone,
+                address=address,
+                email=email,
+                opening_balance=opening_balance,
+            )
+            messages.success(request, "Customer created successfully")
+            return redirect("customer_detail", pk=customer.pk)
+            
+        except Exception as e:
+            messages.error(request, f"Error creating customer: {str(e)}")
+            return redirect("customer_create")
 
     return render(request, "customers/customer_form.html")
 
@@ -54,14 +77,43 @@ def customer_edit(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
 
     if request.method == "POST":
-        customer.customer_id = request.POST.get("customer_id")
-        customer.name = request.POST.get("name")
-        customer.phone = request.POST.get("phone")
-        customer.address = request.POST.get("address")
-        customer.email = request.POST.get("email")
-        customer.opening_balance = request.POST.get("opening_balance", 0.00)
-        customer.save()
-        return redirect("customer_detail", pk=customer.pk)
+        try:
+            customer_id = request.POST.get("customer_id", "").strip()
+            name = request.POST.get("name", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            address = request.POST.get("address", "").strip()
+            email = request.POST.get("email", "").strip()
+            
+            # Validate required fields
+            if not all([customer_id, name, phone, address, email]):
+                messages.error(request, "All fields are required")
+                return redirect("customer_edit", pk=pk)
+            
+            # Basic email validation
+            if "@" not in email or "." not in email:
+                messages.error(request, "Invalid email format")
+                return redirect("customer_edit", pk=pk)
+            
+            # Validate opening balance
+            try:
+                opening_balance = float(request.POST.get("opening_balance", 0.00))
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid opening balance format")
+                return redirect("customer_edit", pk=pk)
+            
+            customer.customer_id = customer_id
+            customer.name = name
+            customer.phone = phone
+            customer.address = address
+            customer.email = email
+            customer.opening_balance = opening_balance
+            customer.save()
+            messages.success(request, "Customer updated successfully")
+            return redirect("customer_detail", pk=customer.pk)
+            
+        except Exception as e:
+            messages.error(request, f"Error updating customer: {str(e)}")
+            return redirect("customer_edit", pk=pk)
 
     return render(request, "customers/customer_form.html", {"customer": customer})
 

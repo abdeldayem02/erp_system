@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Product
 from accounts.decorators import admin_required
+from django.contrib import messages
 
 
 @login_required
@@ -28,22 +30,44 @@ def product_create(request):
     Create a new product. Only accessible by admin users.
     """
     if request.method == "POST":
-        sku = request.POST.get("sku")
-        name = request.POST.get("name")
-        category = request.POST.get("category")
-        cost_price = request.POST.get("cost_price")
-        selling_price = request.POST.get("selling_price")
-        stock_quantity = request.POST.get("stock_quantity")
-
-        product = Product.objects.create(
-            sku=sku,
-            name=name,
-            category=category,
-            cost_price=cost_price,
-            selling_price=selling_price,
-            stock_quantity=stock_quantity,
-        )
-        return redirect("product_detail", pk=product.pk)
+        try:
+            sku = request.POST.get("sku", "").strip()
+            name = request.POST.get("name", "").strip()
+            category = request.POST.get("category", "").strip()
+            
+            # Validate required fields
+            if not all([sku, name, category]):
+                messages.error(request, "All fields are required")
+                return redirect("product_create")
+            
+            # Validate and convert numeric fields
+            try:
+                cost_price = float(request.POST.get("cost_price"))
+                selling_price = float(request.POST.get("selling_price"))
+                stock_quantity = int(request.POST.get("stock_quantity"))
+                
+                if cost_price < 0 or selling_price < 0 or stock_quantity < 0:
+                    messages.error(request, "Prices and quantity cannot be negative")
+                    return redirect("product_create")
+                    
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid price or quantity format")
+                return redirect("product_create")
+            
+            product = Product.objects.create(
+                sku=sku,
+                name=name,
+                category=category,
+                cost_price=cost_price,
+                selling_price=selling_price,
+                stock_quantity=stock_quantity,
+            )
+            messages.success(request, "Product created successfully")
+            return redirect("product_detail", pk=product.pk)
+            
+        except Exception as e:
+            messages.error(request, f"Error creating product: {str(e)}")
+            return redirect("product_create")
 
     return render(request, "products/product_form.html")
 
@@ -56,15 +80,44 @@ def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
     if request.method == "POST":
-        product.sku = request.POST.get("sku")
-        product.name = request.POST.get("name")
-        product.category = request.POST.get("category")
-        product.cost_price = request.POST.get("cost_price")
-        product.selling_price = request.POST.get("selling_price")
-        product.stock_quantity = request.POST.get("stock_quantity")
-        product.save()
-        return redirect("product_detail", pk=product.pk)
-
+        try:
+            sku = request.POST.get("sku", "").strip()
+            name = request.POST.get("name", "").strip()
+            category = request.POST.get("category", "").strip()
+            
+            # Validate required fields
+            if not all([sku, name, category]):
+                messages.error(request, "SKU, Name, and Category are required")
+                return redirect("product_edit", pk=product.pk)
+            
+            # Validate and convert numeric fields
+            try:
+                cost_price = float(request.POST.get("cost_price"))
+                selling_price = float(request.POST.get("selling_price"))
+                stock_quantity = int(request.POST.get("stock_quantity"))
+                
+                if cost_price < 0 or selling_price < 0 or stock_quantity < 0:
+                    messages.error(request, "Prices and quantity cannot be negative")
+                    return redirect("product_edit", pk=product.pk)
+                    
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid price or quantity format")
+                return redirect("product_edit", pk=product.pk)
+            
+            # Update product fields
+            product.sku = sku
+            product.name = name
+            product.category = category
+            product.cost_price = cost_price
+            product.selling_price = selling_price
+            product.stock_quantity = stock_quantity
+            product.save()
+            
+            messages.success(request, "Product updated successfully")
+            return redirect("product_detail", pk=product.pk)
+        except Exception as e:
+            messages.error(request, f"Error updating product: {str(e)}")
+            return redirect("product_edit", pk=product.pk)
     return render(request, "products/product_form.html", {"product": product})
 
 

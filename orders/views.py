@@ -123,25 +123,50 @@ def order_item_add(request, order_pk):
         return redirect("order_detail", pk=order.pk)
 
     if request.method == "POST":
-        product_id = request.POST.get("product_id")
-        quantity = int(request.POST.get("quantity"))
-        
-        product = get_object_or_404(Product, pk=product_id)
-        
-        # Create order item
-        item = SalesOrderItem.objects.create(
-            sales_order=order,
-            product=product,
-            quantity=quantity,
-            unit_price=product.selling_price,
-        )
-        
-        # Recalculate total amount
-        order.total_amount = sum(item.total_price for item in order.items.all())
-        order.save()
-        
-        messages.success(request, f"Added {product.name} to order.")
-        return redirect("order_detail", pk=order.pk)
+        try:
+            product_id = request.POST.get("product_id")
+            
+            # Validate product_id
+            if not product_id:
+                messages.error(request, "Please select a product")
+                return redirect("order_item_add", order_pk=order.pk)
+            
+            # Validate and convert quantity
+            try:
+                quantity = int(request.POST.get("quantity"))
+                if quantity <= 0:
+                    messages.error(request, "Quantity must be greater than zero")
+                    return redirect("order_item_add", order_pk=order.pk)
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid quantity format")
+                return redirect("order_item_add", order_pk=order.pk)
+            
+            product = get_object_or_404(Product, pk=product_id)
+            
+            # Check stock availability
+            if product.stock_quantity < quantity:
+                messages.warning(request, 
+                    f"Insufficient stock for {product.name}. Only {product.stock_quantity} units available.")
+                return redirect("order_item_add", order_pk=order.pk)
+            
+            # Create order item
+            item = SalesOrderItem.objects.create(
+                sales_order=order,
+                product=product,
+                quantity=quantity,
+                unit_price=product.selling_price,
+            )
+            
+            # Recalculate total amount
+            order.total_amount = sum(item.total_price for item in order.items.all())
+            order.save()
+            
+            messages.success(request, f"Added {product.name} to order.")
+            return redirect("order_detail", pk=order.pk)
+            
+        except Exception as e:
+            messages.error(request, f"Error adding item: {str(e)}")
+            return redirect("order_item_add", order_pk=order.pk)
 
     products = Product.objects.all()
     return render(request, "orders/order_item_form.html", {"order": order, "products": products})
