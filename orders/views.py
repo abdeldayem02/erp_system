@@ -10,9 +10,9 @@ from accounts.decorators import admin_required
 @login_required
 def order_list(request):
     """
-    Display a list of all sales orders.
+    Display a list of all sales orders, ordered by date (newest first).
     """
-    orders = SalesOrder.objects.all()
+    orders = SalesOrder.objects.all().order_by('-order_date', '-id')
     return render(request, "orders/order_list.html", {"orders": orders})
 
 
@@ -73,6 +73,11 @@ def order_confirm(request, pk):
     This will trigger stock reduction via signals.
     """
     order = get_object_or_404(SalesOrder, pk=pk)
+    
+    # Validate order has items before confirming
+    if not order.items.exists():
+        messages.error(request, "Cannot confirm an order with no items. Please add items first.")
+        return redirect("order_detail", pk=order.pk)
     
     if order.status == 'pending':
         try:
