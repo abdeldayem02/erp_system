@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - ERP System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-people-fill"></i> Total Customers</h5>
+                <h2 class="card-text">{{ total_customers }}</h2>
+                <a href="{% url 'customer_list' %}" class="btn btn-light btn-sm">View Customers</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cart-check-fill"></i> Orders Today</h5>
+                <h2 class="card-text">{{ total_orders_today }}</h2>
+                <a href="{% url 'order_list' %}" class="btn btn-light btn-sm">View Orders</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-exclamation-triangle-fill"></i> Low Stock Items</h5>
+                <h2 class="card-text">{{ low_stock_products }}</h2>
+                <a href="{% url 'product_list' %}" class="btn btn-light btn-sm">View Products</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'order_create' %}" class="btn btn-primary me-2">
+                    <i class="bi bi-plus-circle"></i> Create Order
+                </a>
+                {% if user.is_admin %}
+                <a href="{% url 'product_create' %}" class="btn btn-success me-2">
+                    <i class="bi bi-box-seam"></i> Add Product
+                </a>
+                {% endif %}
+                <a href="{% url 'customer_create' %}" class="btn btn-info me-2">
+                    <i class="bi bi-person-plus"></i> Add Customer
+                </a>
+                <a href="{% url 'stock_movement_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-list-ul"></i> View Stock Movements
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
