@@ -272,13 +272,14 @@ erp_system/
 
 6. **Create admin user**
    ```bash
-   python manage.py create_user "adminusername" --role ADMIN --password "adminpassword"
-   # Follow the prompts to create an admin user
+    python manage.py create_user admin_user --email admin@company.com --role ADMIN --password password123
+    # Follow the prompts to create an admin user
    ```
+
 7. **(Optional) Create sales user**
    ```bash
-   python manage.py create_user "salesusername" --role SALES --password "salespassword"
-   # Follow the prompts to create a sales user
+    python manage.py create_user john_doe --email john@example.com --role SALES --password password123
+    # Follow the prompts to create a sales user
    ```
 
 7. **(Optional) Load sample data**
