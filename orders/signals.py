@@ -8,8 +8,8 @@ from inventory.models import StockMovement
 def handle_order_status_change(sender, instance, **kwargs):
     """
     Handle stock changes when order status changes.
-    - Pending → Confirmed: Reduce stock and log movement
-    - Confirmed → Cancelled: Restore stock and log movement
+    - Pending -> Confirmed: Reduce stock and log movement
+    - Confirmed -> Cancelled: Restore stock and log movement
     """
     if instance.pk:  # Only for existing orders (not new ones)
         try:
