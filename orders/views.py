@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import SalesOrder, SalesOrderItem
 from products.models import Product
 from customers.models import Customer
+from django.core.paginator import Paginator
 from accounts.decorators import admin_required
 
 
@@ -13,6 +14,9 @@ def order_list(request):
     Display a list of all sales orders, ordered by date (newest first).
     """
     orders = SalesOrder.objects.all().order_by('-order_date', '-id')
+    paginator = Paginator(orders, 10)  # Show 10 orders per page
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
     return render(request, "orders/order_list.html", {"orders": orders})
 
 

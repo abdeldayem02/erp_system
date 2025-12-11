@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.decorators import admin_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Customer
 
@@ -12,6 +13,9 @@ def customer_list(request):
     Display a list of all customers.
     """
     customers = Customer.objects.all()
+    paginator = Paginator(customers, 10)  # Show 10 customers per page
+    page_number = request.GET.get('page')
+    customers = paginator.get_page(page_number)
     return render(request, "customers/customer_list.html", {"customers": customers})
 
 @login_required

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Product
+from django.core.paginator import Paginator
 from accounts.decorators import admin_required
 from django.contrib import messages
 
@@ -12,6 +13,9 @@ def product_list(request):
     Display a list of all products.
     """
     products = Product.objects.all()
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
     return render(request, "products/product_list.html", {"products": products})
 
 
